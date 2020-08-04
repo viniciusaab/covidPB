@@ -1,0 +1,98 @@
+body {
+	font-family: 'Roboto', sans-serif;
+	background-color: #242731;
+	color: #fff;
+}
+
+td, th {
+	color: #999;
+	padding: 3px 12px 3px 0px;
+}
+
+path {
+	cursor: crosshair;
+}
+
+.cities {
+	text-align: right;
+	width: 10%; 
+	white-space: nowrap;
+}
+
+.progress-lines {
+	min-width: 100px;
+	border-left: 1px solid #f18330;
+}
+
+.line {
+	display: block;
+	border-top: 1px solid #f18330;
+	width: 100%;
+}
+
+.bullet-point {
+	color: #f18330;
+	cursor: default;
+	float: right;
+	font-size: 35px;
+	left: 10px;
+	line-height: 0px;
+	position: relative;	
+}
+
+.hollow-width {
+	background-clip: content-box;
+	background-color: rgb(128 128 128 / 10%);
+	color: #fff;
+	min-width: 100px;
+}
+
+.hollow-width span {
+	margin-left: 5px;
+}
+
+.fill {
+	background-color: #666666;
+}
+
+.fill-blue {
+	background-color: #26b1fe;
+}
+
+.font-mini {
+	font-size: 10pt;
+}
+
+.orange {
+	color: #f18330;
+}
+
+.blue {
+	color: #26b1fe;
+}
+
+.tooltip-inner {
+	max-width: none;
+}
+
+.tooltip.show {
+	opacity: 1;
+}
+
+.tooltip.show div {
+	text-align:left;
+	color: #b6b6b6;
+	background-color: #222222;
+}
+
+.tooltip.show p {
+	white-space: nowrap;
+}
+
+.tooltip.show p:nth-child(1) {
+	color: #fff;
+}
+
+.tooltip .arrow {
+	display: none;
+}
