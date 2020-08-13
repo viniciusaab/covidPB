@@ -14,94 +14,120 @@
 </head>
 
 <body>
-	<div class="container">
-		<section class="mt-5">
-			<h2 class="font-weight-light">Disseminação do coronavírus pela Paraíba</h2>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="form-check form-check-inline">
-						<input class="form-check-input" type="radio" name="casesOrDeathsCheckbox" id="casesCheckbox" value="confirmed" checked="checked" onclick="updateHeatmapData()">
-						<label class="form-check-label" for="casesCheckbox">casos</label>
-					</div>
-					<div class="form-check form-check-inline">
-						<input class="form-check-input" type="radio" name="casesOrDeathsCheckbox" id="deathsCheckbox" value="deaths" onclick="updateHeatmapData()">
-						<label class="form-check-label" for="deathsCheckbox">mortes</label>
-					</div>
-					<div class="form-group mt-2" style="width: 150px;">
-						<input type="range" class="form-control-range" id="dateRange" min="0" max="5" value="0" oninput="updateHeatmapData()">
-					</div>
-				</div>
-				<div class="col-md-6">
-					<h4 class="text-right text-muted" id="currentDate"></h4>
-				</div>
-			</div>
-			<div id="heatmap" class="wrapper row mt-3">
-			</div>
-		</section>
-		<section class="mt-5">
-			<h2 class="font-weight-light">Métricas de infecção e mortalidade por município</h2>
-			<h5 class="text-muted font-weight-light">As 10 cidades mais afetadas</h5>
-			<div class="row mt-3">
-				<div class="col-md-12">
-					<table id="tblInfectionFatalityRates">
-						<thead>
-							<tr>
-								<th></th>
-								<th class="font-weight-light">casos confirmados</th>
-								<th class="font-mini font-weight-light">último dia</th>
-								<th class="font-mini font-weight-light">última semana</th>
-								<th class="font-weight-light">mortes</th>
-								<th class="font-weight-light orange">% de mortalidade</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="row mt-4">
-				<div class="col-md-6">
-					<table id="tblCasesPer100k">
-						<thead>
-							<tr>
-								<th></th>
-								<th class="font-weight-light blue">casos por 100mil habitantes</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-				</div>
-				<div class="col-md-6">
-					<table id="tblDeathsPer100k">
-						<thead>
-							<tr>
-								<th></th>
-								<th class="font-weight-light orange">mortes por 100mil habitantes</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</section>
+	<div id="ip-container" class="ip-container">
 
-		<section class="mt-5">
-			<h2 class="font-weight-light">Trajetória de infecção e mortalidade por município</h2>
-			<div class="row mt-3">
-				<div class="col-md-3">
-					<select id="slcCities" class="form-control" onchange="createInfectionTrajectoryChart()">
-					</select>
-				</div>
+		<header class="ip-header">
+
+			<h1 class="ip-logo">
+				covidPB
+			</h1>
+
+			<div class="ip-loader">
+				<svg class="ip-inner" width="60px" height="60px" viewBox="0 0 100 100">
+					<circle id="ip-loader-circle" class="ip-loader-circle ip-loader-circlebg" cx="30" cy="50" fill="#f18330" r="20">
+						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="-0.5s"></animate>
+					</circle>
+					<circle cx="70" cy="50" fill="#26b1fe" r="20">
+						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="0s"></animate>
+					</circle>
+					<circle cx="30" cy="50" fill="#f18330" r="20">
+						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="-0.5s"></animate>
+						<animate attributeName="fill-opacity" values="0;0;1;1" calcMode="discrete" keyTimes="0;0.499;0.5;1" dur="1s" repeatCount="indefinite"></animate>
+					</circle>
+				</svg>
 			</div>
-			<canvas id="infectionTrajectoryChart" class="mt-3"></canvas>
-		</section>
+
+		</header>
+
+		<div class="ip-main">
+			<div class="container">
+				<section class="mt-5">
+					<h2 class="font-weight-light">Disseminação do coronavírus pela Paraíba</h2>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group mt-2" style="width: 150px;">
+								<input type="range" class="form-control-range" id="dateRange" min="0" max="5" value="0" oninput="updateHeatmapData()">
+							</div>
+						</div>
+						<div class="col-md-6">
+							<h4 class="text-right text-muted" id="currentDate"></h4>
+						</div>
+					</div>
+					<div id="heatmap" class="wrapper row mt-3">
+					</div>
+					<div class="middle">
+						<div class="mouse">
+						</div>
+					</div>
+				</section>
+				<section id="sec-2" class="mt-5">
+					<h2 class="font-weight-light">Métricas de infecção e mortalidade por município</h2>
+					<h5 class="text-muted font-weight-light">As 10 cidades mais afetadas</h5>
+					<div class="row mt-3">
+						<div class="col-md-12">
+							<table id="tblInfectionFatalityRates">
+								<thead>
+									<tr>
+										<th></th>
+										<th class="font-weight-light">casos confirmados</th>
+										<th class="font-mini font-weight-light">último dia</th>
+										<th class="font-mini font-weight-light">última semana</th>
+										<th class="font-weight-light">mortes</th>
+										<th class="font-weight-light orange">% de mortalidade</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="row mt-4">
+						<div class="col-md-6">
+							<table id="tblCasesPer100k">
+								<thead>
+									<tr>
+										<th></th>
+										<th class="font-weight-light blue">casos por 100mil habitantes</th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-md-6">
+							<table id="tblDeathsPer100k">
+								<thead>
+									<tr>
+										<th></th>
+										<th class="font-weight-light orange">mortes por 100mil habitantes</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+
+				<section id="sec-3" class="mt-5">
+					<h2 class="font-weight-light">Trajetória de infecção e mortalidade por município</h2>
+					<div class="row mt-3">
+						<div class="col-md-3">
+							<select id="slcCities" class="form-control" onchange="createInfectionTrajectoryChart()">
+							</select>
+						</div>
+					</div>
+					<canvas id="infectionTrajectoryChart" class="mt-3"></canvas>
+				</section>
+			</div>
+		</div>
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/classie/1.0.1/classie.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.4/umd/popper.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>

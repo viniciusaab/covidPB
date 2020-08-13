@@ -2,6 +2,11 @@ body {
 	font-family: 'Roboto', sans-serif;
 	background-color: #242731;
 	color: #fff;
+	overflow: hidden;
+}
+
+section {
+	height: 100vh;
 }
 
 td, th {
@@ -11,6 +16,21 @@ td, th {
 
 path {
 	cursor: crosshair;
+}
+
+.bubble, .legend-bubble {
+	stroke-width: 0.8;
+	stroke: rgba(0,0,0,0.3)
+}
+
+.bubble:hover {
+	stroke: rgba(0,0,0,0.6);
+	stroke-width: 1.2;
+	cursor: crosshair;
+}
+
+.legend-bubble {
+	stroke: rgba(0,0,0,0.4);
 }
 
 .cities {
@@ -96,3 +116,235 @@ path {
 .tooltip .arrow {
 	display: none;
 }
+
+
+/* Loading screen */
+
+.ip-header {
+	position: fixed;
+	top: 0;
+	z-index: 100;
+	min-height: 480px;
+	width: 100%;
+	height: 100%;
+	background: #242731;
+}
+
+.ip-header h1 {
+	margin: 0;
+}
+
+.ip-logo,
+.ip-loader {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	opacity: 0;
+	cursor: default;
+	pointer-events: none;
+}
+
+.ip-logo {
+	top: 0;
+	height: 100%;
+	transform: translate3d(0,25%,0);
+	text-align: center;
+}
+
+.ip-loader {
+	bottom: 20%;
+}
+
+.ip-header .ip-inner {
+	display: block;
+	margin: 0 auto;
+}
+
+.ip-header .ip-logo svg {
+	min-width: 320px;
+	max-width: 480px;
+	width: 25%;
+}
+
+.ip-header .ip-logo svg path {
+	fill: #ef6e7e;
+}
+
+.ip-header .ip-loader svg path {
+	fill: none;
+	stroke-width: 6;
+}
+
+.ip-header .ip-loader svg path.ip-loader-circlebg {
+	stroke: #ddd;
+}
+
+.ip-header .ip-loader svg path.ip-loader-circle {
+	transition: stroke-dashoffset 0.2s;
+	stroke: #ef6e7e;
+}
+
+.ip-main {
+	overflow: hidden;
+	margin: 0 auto;
+	max-width: 1100px;
+	width: 90%;
+}s
+
+.browser {
+	margin: 0 auto;
+	padding-top: 8%;
+	min-height: 400px;
+	max-width: 1000px;
+	width: 100%;
+	border-radius: 8px;
+	background: #fff url(../img/browser.png) no-repeat 50% 0;
+	background-size: 100%;
+	color: #d3d3d3;
+}
+
+.loading .ip-logo,
+.loading .ip-loader {
+	opacity: 1;
+	animation: animInitialHeader 1s cubic-bezier(0.7,0,0.3,1) both;
+}
+
+.loading .ip-loader {
+	animation-delay: 0.2s;
+}
+
+@keyframes animInitialHeader {
+	from { 
+		opacity: 0; 
+		transform: translate3d(0,800px,0); 
+	}
+}
+
+.loaded .ip-logo,
+.loaded .ip-loader {
+	opacity: 1;
+}
+
+.loaded .ip-logo {
+	transform-origin: 50% 0;
+	animation: animLoadedLogo 1s cubic-bezier(0.7,0,0.3,1) forwards;
+}
+
+@keyframes animLoadedLogo {
+	to { 
+		transform: translate3d(0,100%,0) translate3d(0,50px,0) scale3d(0.65,0.65,1); 
+	}
+}
+
+.loaded .ip-logo svg path {
+	transition: all 0.5s ease 0.3s;
+	fill: #fff;
+}
+
+.loaded .ip-loader {
+	animation: animLoadedLoader 0.5s cubic-bezier(0.7,0,0.3,1) forwards;
+}
+
+@keyframes animLoadedLoader {
+	to { 
+		opacity: 0; 
+		transform: translate3d(0,-100%,0) scale3d(0.3,0.3,1); 
+	}
+}
+
+.loaded .ip-header {
+	animation: animLoadedHeader 1s cubic-bezier(0.7,0,0.3,1) forwards;
+}
+
+@keyframes animLoadedHeader {
+	to { opacity: 0; transform: translate3d(0,-100%,0); }
+}
+
+.loaded .ip-main .browser,
+.loaded .ip-main .browser .box,
+.loaded .codrops-demos {
+	animation: animLoadedContent 1s cubic-bezier(0.7,0,0.3,1) both;
+}
+
+.loaded .ip-main .browser,
+.loaded .ip-main .browser .box:first-child {
+	animation-delay: 0.1s;
+}
+
+.loaded .ip-main .browser .box:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.loaded .ip-main .browser .box:nth-child(3) {
+	animation-delay: 0.2s;
+}
+
+@keyframes animLoadedContent {
+	from { 
+		opacity: 0; 
+		transform: translate3d(0,200px,0); 
+	}
+}
+
+.layout-switch .ip-header {
+	position: absolute;
+}
+
+.no-js .ip-header {
+	position: relative;
+	min-height: 0px;
+}
+
+.no-js .ip-header .ip-logo {
+	margin-top: 20px;
+	height: 180px;
+	opacity: 1;
+	transform: none;
+}
+
+.no-js .ip-header .ip-logo svg path {
+	fill: #fff;
+}
+
+
+/* Mouse scroll animation */
+
+.middle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.mouse {
+  width: 25px;
+  height: 45px;
+  border: 2px solid #fff;
+  border-radius: 60px;
+}
+
+.mouse::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  bottom: 30px;
+  background: #fff;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  opacity: 1;
+  animation: mouse 2s infinite;
+}
+
+@keyframes mouse {
+  from {
+    opacity: 1;
+    top: 10px;
+  }
+  to {
+    opacity: 0;
+    top: 30px;
+  }
+}
+

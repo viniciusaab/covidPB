@@ -10,12 +10,25 @@ var cities = [];
 var heatmapData = {};
 var heatmapSvg;
 var maxCases = 0;
+var maxDeaths = 0;
+var colorScale;
 var colorScaleFilled;
 var projection;
 var path;
 var rangeTimer;
+var radius;
+
+// Loading screen variables
+var support = { animations : Modernizr.cssanimations },
+	container = document.getElementById( 'ip-container' ),
+	header = container.querySelector( 'header.ip-header' ),
+	loader = new PathLoader( document.getElementById( 'ip-loader-circle' ) ),
+	animEndEventNames = { 'WebkitAnimation' : 'webkitAnimationEnd', 'OAnimation' : 'oAnimationEnd', 'msAnimation' : 'MSAnimationEnd', 'animation' : 'animationend' },
+	// animation end event name
+	animEndEventName = animEndEventNames[ Modernizr.prefixed( 'animation' ) ];
 
 $(document).ready(function() {
+	initLoadingScreen();
 	// Removes the state records and undefined
 	data = data.filter(d => d.place_type === 'city');
 	data = data.filter(d => d.city !== 'Importados/Indefinidos')
@@ -46,7 +59,6 @@ $(document).ready(function() {
 });
 
 function createStateHeatmap() {
-	confirmed_or_deaths = $('[name="casesOrDeathsCheckbox"]:radio:checked').val();
 	estado = topojson.feature(brasil, brasil.objects["25"]);
 	statesOuter = topojson.mesh(brasil, brasil.objects["25"], (a, b) => a === b);
 	statesInner = topojson.mesh(brasil, brasil.objects["25"], (a, b) => a !== b);
@@ -85,10 +97,15 @@ function createStateHeatmap() {
 		});
 
 		for (let key in heatmapData) {
-			let value = d3.max(heatmapData[key], d => d[confirmed_or_deaths]);
+			let valueCases = d3.max(heatmapData[key], d => d["confirmed"]);
+			let valueDeaths = d3.max(heatmapData[key], d => d["deaths"]);
 
-			if (value > maxCases) {
-				maxCases = value;
+			if (valueCases > maxCases) {
+				maxCases = valueCases;
+			}
+
+			if (valueDeaths > maxDeaths) {
+				maxDeaths = valueDeaths;
 			}
 		}
 
@@ -102,6 +119,7 @@ function createStateHeatmap() {
 
 		const magnitude = toMagnitude(maxCases);
 		const maxLegend = Math.round(maxCases / magnitude) * magnitude;
+		const legendRadii = [10, 500, 2000, 10000];
 
 		const h = 400;
 		const w = 700;
@@ -115,22 +133,36 @@ function createStateHeatmap() {
 		.geoPath()
 		.projection(projection);
 
-		const colorScale = d3
+		colorScale = d3
 		.scaleSqrt()
-		.domain([0, maxCases])
+		.domain([0, maxDeaths])
 		.range(['hsla(57, 100%, 50%, 0.36)', 'hsla(7, 100%, 50%, 0.57)']);
 
-		const radius = d3
+		radius = d3
 		.scaleSqrt()
-		.domain([0, maxCases])
+		.domain([0, maxDeaths])
 		.range([0, maxRadius]);
 
 		heatmapSvg = d3
 		.select("#heatmap")
 		.append("svg")
 		.attr("viewBox", [0, 0, w, h])
-		.attr("width", "100%")
+		.attr("width", "60vw")
 		.attr("class", "paraiba");
+
+		const legend = heatmapSvg
+		.append("g")
+		.attr("class", "legend")
+		.attr("fill", "#777")
+		.attr(
+			"transform",
+			`translate(${w > breakpoint ? [w - w / 3.5, h / 3.5] : [10, h - 15]})`
+		);
+
+		const legendBubbles = legend
+		.selectAll("g")
+		.data(legendRadii)
+		.join("g");
 
 		heatmapSvg.append("path")
 		.datum(statesOuter)
@@ -147,16 +179,16 @@ function createStateHeatmap() {
 		.append("path")
 		.attr("stroke", "#BBB")
 		.attr("class", "county")
-		.attr("onmouseover","showDetails($(this))")
-		.attr("data-html", "true")
+	    .attr("onmouseover","showDetails($(this))")
+	    .attr("data-html", "true")
 		.style('stroke-width', d => {
 			let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
-			let value = currentData[index] ? currentData[index][confirmed_or_deaths] : 0;
+			let value = currentData[index] ? currentData[index]["confirmed"] : 0;
 
 			return value > 0 ? "0px" : "0.25px";
 		}).attr("fill", d => {
 			let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
-			let value = currentData[index] ? currentData[index][confirmed_or_deaths] : 0;
+			let value = currentData[index] ? currentData[index]["confirmed"] : 0;
 
 			return value > 0 ? colorScaleFilled(value) : "#fff";
 		})
@@ -167,35 +199,80 @@ function createStateHeatmap() {
 			let value = currentData[index] ? currentData[index]['city'] : '';
 			return value;
 		});
-	});
 
-	//controlRange();
+		heatmapSvg
+	    .selectAll(".bubble")
+	    .data(estado.features)
+	    .enter()
+	    .append("circle")
+	    .attr("onmouseover","showDetails($(this))")
+	    .attr("data-html", "true")
+		.attr("transform", d => {
+			let index = data_city.findIndex(dd => dd.city_ibge_code === d.properties.cod);
+
+			return "translate(" + projection([data_city[index].longitude, data_city[index].latitude]) + ")";
+		})
+		.attr("class", "bubble")
+		.attr("fill-opacity", 0.5)
+		.attr("r", d => {
+			let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
+			let value = currentData[index] ? currentData[index]["deaths"] : 0;
+
+			return radius(+value)
+		})
+		.append("text")
+		.text(d => {
+			let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
+			let value = currentData[index] ? currentData[index]['city'] : '';
+			return value;
+		});
+
+		window.addEventListener('wheel', e => controlRange(e), {passive: false});
+		window.addEventListener('keydown', e => controlRange(e), {passive: false});
+	});
 }
 
 function updateHeatmapData() {
 	index = $('#dateRange').val();
-	confirmed_or_deaths = $('[name="casesOrDeathsCheckbox"]:radio:checked').val();
 	currentData = heatmapData[dates[index]];
 
 	$('#currentDate').text(
 		moment(dates[index]).format('D MMMM YYYY').replace(/ /g,' de ')
 	);
+
+	const t = heatmapSvg
+	.transition()
+	.duration(index === 0 ? 0 : 250)
+	.ease(d3.easeLinear);
 	
 	heatmapSvg
 	.selectAll(".county")
 	.style('stroke-width', d => {
 	    let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
-	    let value = currentData[index] ? currentData[index][confirmed_or_deaths] : 0;
+	    let value = currentData[index] ? currentData[index]["confirmed"] : 0;
 
 	    return value > 0 ? "0px" : "0.25px";
 	}).attr("fill", d => {
 	    let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
-	    let value = currentData[index] ? currentData[index][confirmed_or_deaths] : 0;
+	    let value = currentData[index] ? currentData[index]["confirmed"] : 0;
 
 	    return value > 0 ? colorScaleFilled(value) : "#fff";
-	}).select("text").text(d => {
+	})
+	.select("text").text(d => {
 		let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
-		let value = currentData[index] ? currentData[index]['city'] : 0;
+		let value = currentData[index] ? currentData[index]['city'] : '';
+		return value;
+	});
+
+	heatmapSvg.selectAll(".bubble").attr("r", d => {
+	    let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
+	    let value = currentData[index] ? currentData[index]["deaths"] : 0;
+
+	    return radius(+value);
+    })
+	.select("text").text(d => {
+		let index = currentData.findIndex(dd => dd.city_ibge_code === d.properties.cod);
+		let value = currentData[index] ? currentData[index]['city'] : '';
 		return value;
 	});
 }
@@ -238,18 +315,21 @@ function showDetails(e) {
 	}
 }
 
-function controlRange() {
-	var dateRange = $('#dateRange');
+function controlRange(e) {
+	if (e.type == 'wheel' || (e.type == 'keydown' && e.key === 'ArrowDown')) {
+		const dateRange = $('#dateRange')
 
-	rangeTimer = setInterval(function() {
-		if (dateRange.val() == dateRange.attr('max')) {
-			clearInterval(rangeTimer);
-			return false;
-		}
+		dateRange.val(parseInt(dateRange.val()) + 1);
 
-		dateRange.val(parseInt(dateRange.val()) +1);
 		updateHeatmapData();
-	},250);
+
+		if (dateRange.val() != dateRange.attr('max')) {
+			e.preventDefault();
+			return false;
+		} else {
+			$('.middle').hide();
+		}
+	}
 }
 
 function createInfectionAndDeathRateTable() {
@@ -352,7 +432,7 @@ function createDeathsPer100kTable() {
 
 function createInfectionTrajectoryChart() {
 	const citiesCombobox = $('#slcCities');
-	let casesPerDay = [];
+	let deathsPerDay = [];
 	let casesPerWeek = [];
 
 	// Populates the combobox with all the Cities
@@ -370,12 +450,13 @@ function createInfectionTrajectoryChart() {
 
 	// Loops through the city records and mounts the data arrays for the chart
 	$.each(cityData, function(index, reg) {
-		casesPerDay.push((reg.new_confirmed < 0 ? 0 : reg.new_confirmed));
-		const weekAverage = Math.round(cityData.filter(d => new Date(d.date) <= new Date(reg.date) )
+		const casesWeekAverage = Math.round(cityData.filter(d => new Date(d.date) <= new Date(reg.date) )
 										 	   .slice(-7)
 										 	   .map(r => r.new_confirmed)
 										 	   .reduce((total, currentValue) => total + currentValue) / 7);
-		casesPerWeek.push((weekAverage < 0 ? 0 : weekAverage));
+
+		casesPerWeek.push((casesWeekAverage < 0 ? 0 : casesWeekAverage));
+		deathsPerDay.push((reg.new_deaths < 0 ? 0 : reg.new_deaths));
 	});
 
 	// Destroys the chart if it already exists
@@ -389,20 +470,20 @@ function createInfectionTrajectoryChart() {
 			labels: labels,
 			datasets: [{
 				type: 'line',
-				label: 'Média semanal',
+				label: 'Casos (média semanal)',
 				data: casesPerWeek,
-				backgroundColor: '#f18330',
-				borderColor: '#f18330',
+				backgroundColor: '#26b1fe',
+				borderColor: '#26b1fe',
 				borderWidth: 3,
 				fill: false
 			},
 			{
 				type: 'bar',
-				label: 'Casos confirmados',
-				data: casesPerDay,
-				backgroundColor: '#26b1fe',
-				borderColor: '#26b1fe',
-				borderWidth: 1,
+				label: 'Mortes (por dia)',
+				data: deathsPerDay,
+				backgroundColor: '#f18330',
+				borderColor: '#f18330',
+				borderWidth: 3,
 				fill: false
 			}]
 		},
@@ -453,7 +534,11 @@ function createInfectionTrajectoryChart() {
 }
 
 function calcDifference(newValue, oldValue) {
-	return (newValue - oldValue) / oldValue * 100;
+	if (oldValue != 0) {
+		return (newValue - oldValue) / oldValue * 100;
+	} else {
+		return - newValue * 100;
+	}
 }
 
 function calcPercentage(newValue, total) {
@@ -489,4 +574,99 @@ function addSeparator(nStr) {
 function toMagnitude(n) {
 	var order = Math.floor(Math.log(n) / Math.LN10 + 0.000000001);
 	return Math.pow(10, order);
+}
+
+/* Loading screen */
+
+function PathLoader( el ) {
+	this.el = el;
+	// clear stroke
+	this.el.style.strokeDasharray = this.el.style.strokeDashoffset = this.el.getTotalLength();
+}
+
+PathLoader.prototype._draw = function( val ) {
+	this.el.style.strokeDashoffset = this.el.getTotalLength() * ( 1 - val );
+}
+
+PathLoader.prototype.setProgress = function( val, callback ) {
+	this._draw(val);
+	if( callback && typeof callback === 'function' ) {
+		// give it a time (ideally the same like the transition time) so that the last progress increment animation is still visible.
+		setTimeout( callback, 200 );
+	}
+}
+
+PathLoader.prototype.setProgressFn = function( fn ) {
+	if( typeof fn === 'function' ) { fn( this ); }
+}
+
+var simulationFn = function(instance) {
+	var progress = 0,
+		interval = setInterval( function() {
+			progress = Math.min( progress + Math.random() * 0.1, 1 );
+			instance.setProgress( progress );
+			// reached the end
+			if( progress === 1 ) {
+				clearInterval( interval );
+			}
+		}, 100 );
+};
+
+function initLoadingScreen() {	
+	var onEndInitialAnimation = function() {
+		if( support.animations ) {
+			this.removeEventListener( animEndEventName, onEndInitialAnimation );
+		}
+
+		startLoading();
+	};
+
+	// initial animation
+	classie.add( container, 'loading' );
+
+	if( support.animations ) {
+		container.addEventListener( animEndEventName, onEndInitialAnimation );
+	}
+	else {
+		onEndInitialAnimation();
+	}
+}
+
+function startLoading() {
+	// simulate loading something..
+	var simulationFn = function(instance) {
+		var progress = 0,
+			interval = setInterval( function() {
+				progress = Math.min( progress + Math.random() * 0.1, 1 );
+
+				instance.setProgress( progress );
+
+				// reached the end
+				if( progress === 1 ) {
+					classie.remove( container, 'loading' );
+					classie.add( container, 'loaded' );
+					clearInterval( interval );
+
+					var onEndHeaderAnimation = function(ev) {
+						if( support.animations ) {
+							if( ev.target !== header ) return;
+							this.removeEventListener( animEndEventName, onEndHeaderAnimation );
+						}
+
+						classie.add( document.body, 'layout-switch' );
+					};
+
+					if( support.animations ) {
+						header.addEventListener( animEndEventName, onEndHeaderAnimation );
+					}
+					else {
+						onEndHeaderAnimation();
+					}
+					window.scrollTo( 0, 0 );
+					$('body').css('overflow','auto');
+				}
+			}, 80 );
+	};
+
+	loader.setProgressFn( simulationFn );
 }
