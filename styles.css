@@ -4,11 +4,11 @@ body {
 	color: #fff;
 	overflow: hidden;
 }
-
+/*
 section {
 	height: 100vh;
 }
-
+*/
 td, th {
 	color: #999;
 	padding: 3px 12px 3px 0px;
@@ -16,6 +16,10 @@ td, th {
 
 path {
 	cursor: crosshair;
+}
+
+#deathsByAgeAndGenderChart svg  {
+	overflow: visible;
 }
 
 .bubble, .legend-bubble {

@@ -4,6 +4,9 @@ var mostInfectedCities;
 var lastWeekRecords;
 var epidemiologicalWeeks;
 var infectionTrajectoryChart;
+var symptomsToDeathPeriodChart;
+var mostCommonComorbitiesChart;
+var deathsByAgeAndGenderChart;
 var cities = [];
 
 // Heatmap variables
@@ -56,6 +59,9 @@ $(document).ready(function() {
 	createCasesPer100kTable();
 	createDeathsPer100kTable();
 	createInfectionTrajectoryChart();
+	createSymptomsToDeathPeriodChart();
+	createMostCommonComorbiditiesChart();
+	createDeathsByAgeAndGenderChart();
 });
 
 function createStateHeatmap() {
@@ -86,7 +92,7 @@ function createStateHeatmap() {
 		}
 	});
 
-	d3.csv("https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/csv/municipios.csv").then(function(municipios) {
+	d3.csv("https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv").then(function(municipios) {
 		data_city = municipios.filter(d => d.codigo_uf === "25").map(d => {
 			return {
 				latitude: +d.latitude,
@@ -533,6 +539,372 @@ function createInfectionTrajectoryChart() {
 	});
 }
 
+function createSymptomsToDeathPeriodChart() {
+	symptomsToDeathPeriodChart = new Chart($('#symptomsToDeathPeriodChart')[0], {
+		type: 'horizontalBar',
+		data: {
+			datasets: [{
+				label: 'até 7 dias',
+				data: [
+					(detailedDeathsData.filter(d => dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) < 7).length / detailedDeathsData.length) * 100
+				],
+				backgroundColor: '#f0a66e',
+				borderColor: '#242731'
+			},
+			{
+				label: 'entre 7 e 14 dias',
+				data: [
+					(detailedDeathsData.filter(d => dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) >= 7 && dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) < 14).length / detailedDeathsData.length) * 100
+				],
+				backgroundColor: '#f2944e',
+				borderColor: '#242731'
+			},
+			{
+				label: 'entre 14 e 21 dias',
+				data: [
+					(detailedDeathsData.filter(d => dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) >= 14 && dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) < 21).length / detailedDeathsData.length) * 100
+				],
+				backgroundColor: '#f18330',
+				borderColor: '#242731'
+			},
+			{
+				label: 'mais que 21 dias',
+				data: [
+					(detailedDeathsData.filter(d => dateDifference(d['Data do Óbito'],d['Inicio Sintomas']) > 21).length / detailedDeathsData.length) * 100
+				],
+				backgroundColor: '#f07113',
+				borderColor: '#242731'
+			}]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			legend: {
+				position: 'bottom',
+	            labels: {
+	                fontColor: '#999'
+	            }
+			},
+			title: {
+				display: false
+			},
+			tooltips: {
+				enabled: false
+			},
+			events: [],
+			animation: {
+				onComplete: function() {
+				      var chartInstance = this.chart;
+				      var ctx = chartInstance.ctx;
+				      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
+				      ctx.textAlign = "left";
+				      ctx.fillStyle = "#fff";
+
+				      Chart.helpers.each(
+				        this.data.datasets.forEach(function(dataset, i) {
+				          var meta = chartInstance.controller.getDatasetMeta(i);
+				          Chart.helpers.each(
+				            meta.data.forEach(function(bar, index) {
+				              data = dataset.data[index].toFixed(2) + '%';
+				              ctx.fillText(data, bar._model.x - 50, bar._model.y);
+				            }),
+				            this
+				          );
+				        }),
+				        this
+				      );
+				}
+			},
+			scales: {
+				xAxes: [{
+					stacked: true,
+					gridLines: {
+						display: true,
+					},
+					ticks: {
+						fontColor: "#999",
+					},
+				}],
+				yAxes: [{
+					stacked: true,
+					display: true,
+					gridLines: {
+						display: true,
+					},
+					ticks: {
+						fontColor: "#999",
+					},
+				}],
+			}
+		}
+	});
+
+	//symptomsToDeathPeriodChart.canvas.parentNode.style.height = '100px';
+}
+
+function createMostCommonComorbiditiesChart() {
+	let mostCommonComorbities = {};
+	let mostCommonComorbitiesArray = [];
+
+	$.each(detailedDeathsData.map(d => d['Doenças preexistentes']), function(index, data) {
+		const comorbities = data.split(',');
+
+		$.each(comorbities, function(index, comorbidity) {
+			comorbidity = comorbidity.trim();
+			if (!mostCommonComorbities[comorbidity]) {
+				mostCommonComorbities[comorbidity] = 0;
+			}
+
+			mostCommonComorbities[comorbidity]++;
+		});
+	});
+
+	mostCommonComorbitiesArray = Object.keys(mostCommonComorbities).map(function(d, i) {
+		return {
+			label: d,
+			data: Object.values(mostCommonComorbities)[i]
+		};
+	}).sort(function(a, b) {
+		return b.data - a.data;
+	});
+
+	mostCommonComorbitiesChart = new Chart($('#mostCommonComorbitiesChart')[0], {
+		type: 'horizontalBar',
+		data: {
+			labels: mostCommonComorbitiesArray.map(c => c.label),
+			datasets: [{
+				data: mostCommonComorbitiesArray.map(c => c.data),
+				backgroundColor: '#f18330',
+				borderColor: '#242731'
+			}]
+		},
+		options: {
+			responsive: true,
+			legend: {
+				display: false
+			},
+			title: {
+				display: false
+			},
+			animation: {
+				onComplete: function() {
+					const ctx = this.chart.ctx;
+					ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
+					ctx.textAlign = 'left';
+					ctx.textBaseline = 'bottom';
+
+					this.data.datasets.forEach(function (dataset) {
+						for (let i = 0; i < dataset.data.length; i++) {
+							const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
+							scale_max = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._yScale.maxHeight;
+							left = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._xScale.left;
+							offset = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._xScale.longestLabelWidth;
+							ctx.fillStyle = '#fff';
+							let y_pos = model.y - 5;
+							const label = dataset.data[i] + ' (' + ((dataset.data[i] / detailedDeathsData.length) * 100).toFixed(2) + '%)';
+
+							if ((scale_max - model.y) / scale_max >= 0.93)
+								y_pos = model.y + 20; 
+
+							ctx.fillText(label, left + 10, model.y + 8);
+						}
+					});   
+				}
+			},
+			tooltips: {
+				enabled: false
+			},
+			events: [],
+			scales: {
+				xAxes: [{
+					gridLines: {
+						display: true,
+					},
+					ticks: {
+						fontColor: "#999",
+					},
+				}],
+				yAxes: [{
+					display: true,
+					gridLines: {
+						display: true,
+					},
+					ticks: {
+						fontColor: "#999",
+					},
+				}],
+			}
+		}
+	});
+}
+
+function createDeathsByAgeAndGenderChart() {
+	const data = [	
+	{age: "≥85", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 85 && d.Sexo == 'Masculino').length},
+	{age: "≥85", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 85 && d.Sexo == 'Feminino').length},
+	{age: "80-84", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 80 && d.Idade <= 84 && d.Sexo == 'Masculino').length},
+	{age: "80-84", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 80 && d.Idade <= 84 && d.Sexo == 'Feminino').length},
+	{age: "75-79", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 75 && d.Idade <= 79 && d.Sexo == 'Masculino').length},
+	{age: "75-79", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 75 && d.Idade <= 79 && d.Sexo == 'Feminino').length},
+	{age: "70-74", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 70 && d.Idade <= 74 && d.Sexo == 'Masculino').length},
+	{age: "70-74", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 70 && d.Idade <= 74 && d.Sexo == 'Feminino').length},
+	{age: "65-69", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 65 && d.Idade <= 69 && d.Sexo == 'Masculino').length},
+	{age: "65-69", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 65 && d.Idade <= 69 && d.Sexo == 'Feminino').length},
+	{age: "60-64", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 60 && d.Idade <= 64 && d.Sexo == 'Masculino').length},
+	{age: "60-64", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 60 && d.Idade <= 64 && d.Sexo == 'Feminino').length},
+	{age: "55-59", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 55 && d.Idade <= 59 && d.Sexo == 'Masculino').length},
+	{age: "55-59", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 55 && d.Idade <= 59 && d.Sexo == 'Feminino').length},
+	{age: "50-54", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 50 && d.Idade <= 54 && d.Sexo == 'Masculino').length},
+	{age: "50-54", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 50 && d.Idade <= 54 && d.Sexo == 'Feminino').length},
+	{age: "45-49", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 45 && d.Idade <= 49 && d.Sexo == 'Masculino').length},
+	{age: "45-49", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 45 && d.Idade <= 49 && d.Sexo == 'Feminino').length},
+	{age: "40-44", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 40 && d.Idade <= 44 && d.Sexo == 'Masculino').length},
+	{age: "40-44", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 40 && d.Idade <= 44 && d.Sexo == 'Feminino').length},
+	{age: "35-39", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 35 && d.Idade <= 39 && d.Sexo == 'Masculino').length},
+	{age: "35-39", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 35 && d.Idade <= 39 && d.Sexo == 'Feminino').length},
+	{age: "30-34", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 30 && d.Idade <= 34 && d.Sexo == 'Masculino').length},
+	{age: "30-34", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 30 && d.Idade <= 34 && d.Sexo == 'Feminino').length},
+	{age: "25-29", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 25 && d.Idade <= 29 && d.Sexo == 'Masculino').length},
+	{age: "25-29", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 25 && d.Idade <= 29 && d.Sexo == 'Feminino').length},
+	{age: "20-24", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 20 && d.Idade <= 24 && d.Sexo == 'Masculino').length},
+	{age: "20-24", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 20 && d.Idade <= 24 && d.Sexo == 'Feminino').length},
+	{age: "15-19", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 15 && d.Idade <= 19 && d.Sexo == 'Masculino').length},
+	{age: "15-19", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 15 && d.Idade <= 19 && d.Sexo == 'Feminino').length},
+	{age: "10-14", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 10 && d.Idade <= 14 && d.Sexo == 'Masculino').length},
+	{age: "10-14", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 10 && d.Idade <= 14 && d.Sexo == 'Feminino').length},
+	{age: "5-9", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 5 && d.Idade <= 9 && d.Sexo == 'Masculino').length},
+	{age: "5-9", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 5 && d.Idade <= 9 && d.Sexo == 'Feminino').length},
+	{age: "<5", sex: "M", value: detailedDeathsData.filter(d => d.Idade < 5 && d.Sexo == 'Masculino').length},
+	{age: "<5", sex: "F", value: detailedDeathsData.filter(d => d.Idade < 5 && d.Sexo == 'Feminino').length}
+	];
+
+	const margin = {top: 10, right: 0, bottom: 20, left: 0};
+	const gutter = 20;
+	const height = 500;
+	const width = 800;
+
+	const xM = d3.scaleLinear()
+	.domain([0, d3.max(data, d => d.value)])
+	.rangeRound([width / 2, margin.left])
+
+	const xF = d3.scaleLinear()
+	.domain(xM.domain())
+	.rangeRound([width / 2, width - margin.right])
+
+	const y = d3.scaleBand()
+	.domain(data.map(d => d.age))
+	.rangeRound([height - margin.bottom, margin.top])
+	.padding(0.3)
+
+	const xAxisM = g => g
+	.attr("transform", `translate(-${gutter},${height - margin.bottom})`)
+	.call(g => g.append("g").call(d3.axisBottom(xM).ticks(width / 80, "s")))
+	.call(g => g.selectAll(".tick text").attr("fill", "#999"))
+	.call(g => g.selectAll(".tick line").attr("stroke", "#999"))
+	.call(g => g.selectAll(".domain").remove())
+	.call(g => g.selectAll(".tick:first-of-type").remove())
+
+	const xAxisF = g => g
+	.attr("transform", `translate(${gutter},${height - margin.bottom})`)
+	.call(g => g.append("g").call(d3.axisBottom(xF).ticks(width / 80, "s")))
+	.call(g => g.selectAll(".tick text").attr("fill", "#999"))
+	.call(g => g.selectAll(".tick line").attr("stroke", "#999"))
+	.call(g => g.selectAll(".domain").remove())
+	.call(g => g.selectAll(".tick:first-of-type").remove())
+
+	const yAxis = g => g
+	.attr("transform", `translate(${xM(12)},0)`)
+	.call(d3.axisRight(y).tickSizeOuter(0))
+	.call(g => g.selectAll(".tick text").attr("fill", "#999"))
+	.call(g => g.selectAll("path, line").remove())
+
+	// Chart
+	const svg = d3.select("#deathsByAgeAndGenderChart")
+	.append("svg")
+	.attr("viewBox", [0, 0, width, height])
+	.attr("width", "60vw")
+	.attr("height", "500")
+	.attr("font-family", "sans-serif")
+
+	// Bars for the male dataset
+	svg.append("g")
+	.selectAll("rect")
+	.data(data.filter(d => d.sex === "M"))
+	.join("rect")
+	.attr("transform", `translate(-${gutter},0)`)
+	.attr("fill", "#26b1fe")
+	.attr("x", d => xM(d.value))
+	.attr("y", d => y(d.age))
+	.attr("width", d => xM(0) - xM(d.value))
+	.attr("height", y.bandwidth());
+
+	// Bars for the female dataset
+	svg.append("g")
+	.selectAll("rect")
+	.data(data.filter(d => d.sex === "F"))
+	.join("rect")
+	.attr("transform", `translate(${gutter},0)`)
+	.attr("fill", "#f18330")
+	.attr("x", d => xF(0))
+	.attr("y", d => y(d.age))
+	.attr("width", d => xF(d.value) - xF(0))
+	.attr("height", y.bandwidth());
+
+	// Bar values
+	svg.append("g")
+	.attr("fill", "white")
+	.selectAll("text")
+	.data(data)
+	.join("text")
+	.attr("text-anchor", d => d.sex === "M" ? "start" : "end")
+	.attr("style","font-size: 8pt")
+	.attr("x", d => d.sex === "M" ? xM(d.value) - gutter - (d.value > 99 ? 20 : 15) : xF(d.value) + gutter + (d.value > 99 ? 20 : 15))
+	.attr("y", d => y(d.age) + y.bandwidth() / 2)
+	.attr("dy", "0.35em")
+	.text(d => d.value);
+
+	// Bar values by percentage
+	svg.append("g")
+	.attr("fill", "#999")
+	.selectAll("text")
+	.data(data)
+	.join("text")
+	.attr("text-anchor", d => d.sex === "M" ? "start" : "end")
+	.attr("style","font-size: 8pt")
+	.attr("x", d => d.sex === "M" ? xM(d.value) - gutter - (d.value > 99 ? 60 : 55) : xF(d.value) + gutter + (d.value > 99 ? 60 : 55))
+	.attr("y", d => y(d.age) + y.bandwidth() / 2)
+	.attr("dy", "0.35em")
+	.text(d => d.sex === "M" ? '(' + ((d.value / detailedDeathsData.length) * 100).toFixed(2) + '%) ':' (' + ((d.value / detailedDeathsData.length) * 100).toFixed(2) + '%)');
+
+	// Label for the male dataset
+	svg.append("text")
+	.attr("text-anchor", "end")
+	.attr("fill", "#fff")
+	.attr("dy", "0.35em")
+	.attr("x", xM(0) - gutter - 5)
+	.attr("y", y(data[0].age) + y.bandwidth() / 2)
+	.text("Masculino");
+
+	// Label for the female dataset
+	svg.append("text")
+	.attr("text-anchor", "start")
+	.attr("fill", "#fff")
+	.attr("dy", "0.35em")
+	.attr("x", xF(0) + gutter + 5)
+	.attr("y", y(data[0].age) + y.bandwidth() / 2)
+	.text("Feminino");
+
+	// Legends for the X and Y axis
+	svg.append("g")
+	.call(xAxisM);
+
+	svg.append("g")
+	.call(xAxisF);
+
+	svg.append("g")
+	.call(yAxis);
+}
+
 function calcDifference(newValue, oldValue) {
 	if (oldValue != 0) {
 		return (newValue - oldValue) / oldValue * 100;
@@ -557,6 +929,13 @@ function compare(a, b) {
 	}
 
 	return 0;
+}
+
+function dateDifference(firstDate, secondDate) {
+	const diffTime = Math.abs(new Date(secondDate) - new Date(firstDate));
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+	return diffDays;
 }
 
 function addSeparator(nStr) {
