@@ -605,8 +605,8 @@ function createSymptomsToDeathPeriodChart() {
 				          var meta = chartInstance.controller.getDatasetMeta(i);
 				          Chart.helpers.each(
 				            meta.data.forEach(function(bar, index) {
-				              data = dataset.data[index].toFixed(2) + '%';
-				              ctx.fillText(data, bar._model.x - 50, bar._model.y);
+				              let percentage = dataset.data[index].toFixed(2) + '%';
+				              ctx.fillText(percentage, bar._model.x - 50, bar._model.y);
 				            }),
 				            this
 				          );
@@ -739,7 +739,7 @@ function createMostCommonComorbiditiesChart() {
 }
 
 function createDeathsByAgeAndGenderChart() {
-	const data = [	
+	const pyramidData = [	
 	{age: "≥85", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 85 && d.Sexo == 'Masculino').length},
 	{age: "≥85", sex: "F", value: detailedDeathsData.filter(d => d.Idade >= 85 && d.Sexo == 'Feminino').length},
 	{age: "80-84", sex: "M", value: detailedDeathsData.filter(d => d.Idade >= 80 && d.Idade <= 84 && d.Sexo == 'Masculino').length},
@@ -784,7 +784,7 @@ function createDeathsByAgeAndGenderChart() {
 	const width = 800;
 
 	const xM = d3.scaleLinear()
-	.domain([0, d3.max(data, d => d.value)])
+	.domain([0, d3.max(pyramidData, d => d.value)])
 	.rangeRound([width / 2, margin.left])
 
 	const xF = d3.scaleLinear()
@@ -792,7 +792,7 @@ function createDeathsByAgeAndGenderChart() {
 	.rangeRound([width / 2, width - margin.right])
 
 	const y = d3.scaleBand()
-	.domain(data.map(d => d.age))
+	.domain(pyramidData.map(d => d.age))
 	.rangeRound([height - margin.bottom, margin.top])
 	.padding(0.3)
 
@@ -829,7 +829,7 @@ function createDeathsByAgeAndGenderChart() {
 	// Bars for the male dataset
 	svg.append("g")
 	.selectAll("rect")
-	.data(data.filter(d => d.sex === "M"))
+	.data(pyramidData.filter(d => d.sex === "M"))
 	.join("rect")
 	.attr("transform", `translate(-${gutter},0)`)
 	.attr("fill", "#26b1fe")
@@ -841,7 +841,7 @@ function createDeathsByAgeAndGenderChart() {
 	// Bars for the female dataset
 	svg.append("g")
 	.selectAll("rect")
-	.data(data.filter(d => d.sex === "F"))
+	.data(pyramidData.filter(d => d.sex === "F"))
 	.join("rect")
 	.attr("transform", `translate(${gutter},0)`)
 	.attr("fill", "#f18330")
@@ -854,7 +854,7 @@ function createDeathsByAgeAndGenderChart() {
 	svg.append("g")
 	.attr("fill", "white")
 	.selectAll("text")
-	.data(data)
+	.data(pyramidData)
 	.join("text")
 	.attr("text-anchor", d => d.sex === "M" ? "start" : "end")
 	.attr("style","font-size: 8pt")
@@ -867,7 +867,7 @@ function createDeathsByAgeAndGenderChart() {
 	svg.append("g")
 	.attr("fill", "#999")
 	.selectAll("text")
-	.data(data)
+	.data(pyramidData)
 	.join("text")
 	.attr("text-anchor", d => d.sex === "M" ? "start" : "end")
 	.attr("style","font-size: 8pt")
@@ -882,7 +882,7 @@ function createDeathsByAgeAndGenderChart() {
 	.attr("fill", "#fff")
 	.attr("dy", "0.35em")
 	.attr("x", xM(0) - gutter - 5)
-	.attr("y", y(data[0].age) + y.bandwidth() / 2)
+	.attr("y", y(pyramidData[0].age) + y.bandwidth() / 2)
 	.text("Masculino");
 
 	// Label for the female dataset
@@ -891,7 +891,7 @@ function createDeathsByAgeAndGenderChart() {
 	.attr("fill", "#fff")
 	.attr("dy", "0.35em")
 	.attr("x", xF(0) + gutter + 5)
-	.attr("y", y(data[0].age) + y.bandwidth() / 2)
+	.attr("y", y(pyramidData[0].age) + y.bandwidth() / 2)
 	.text("Feminino");
 
 	// Legends for the X and Y axis
