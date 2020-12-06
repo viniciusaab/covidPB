@@ -6,146 +6,362 @@
 
 	<title>covidPB</title>
 	<meta name="description" content="covidPB">
-	<meta name="author" content="VA">
-
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+	<meta name="author" content="Vinícius Amorim">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link rel="icon" href="assets/img/icon/fabicon.png">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
 	<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-	<div id="ip-container" class="ip-container">
 
-		<header class="ip-header">
-
-			<h1 class="ip-logo">
-				covidPB
-			</h1>
-
-			<div class="ip-loader">
-				<svg class="ip-inner" width="60px" height="60px" viewBox="0 0 100 100">
-					<circle id="ip-loader-circle" class="ip-loader-circle ip-loader-circlebg" cx="30" cy="50" fill="#f18330" r="20">
-						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="-0.5s"></animate>
-					</circle>
-					<circle cx="70" cy="50" fill="#26b1fe" r="20">
-						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="0s"></animate>
-					</circle>
-					<circle cx="30" cy="50" fill="#f18330" r="20">
-						<animate attributeName="cx" repeatCount="indefinite" dur="1s" keyTimes="0;0.5;1" values="30;70;30" begin="-0.5s"></animate>
-						<animate attributeName="fill-opacity" values="0;0;1;1" calcMode="discrete" keyTimes="0;0.499;0.5;1" dur="1s" repeatCount="indefinite"></animate>
-					</circle>
-				</svg>
-			</div>
-
-		</header>
-
-		<div class="ip-main">
-			<div class="container">
-				<section class="mt-5">
-					<h2 class="font-weight-light">Disseminação do coronavírus pela Paraíba</h2>
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group mt-2" style="width: 150px;">
-								<input type="range" class="form-control-range" id="dateRange" min="0" max="5" value="0" oninput="updateHeatmapData()">
-							</div>
-						</div>
-						<div class="col-md-6">
-							<h4 class="text-right text-muted" id="currentDate"></h4>
-						</div>
-					</div>
-					<div id="heatmap" class="wrapper row mt-3">
-					</div>
-					<div class="middle">
-						<div class="mouse">
-						</div>
-					</div>
-				</section>
-				<section id="sec-2" class="mt-5">
-					<h2 class="font-weight-light">Métricas de infecção e mortalidade por município</h2>
-					<h5 class="text-muted font-weight-light">As 10 cidades mais afetadas</h5>
-					<div class="row mt-3">
-						<div class="col-md-12">
-							<table id="tblInfectionFatalityRates">
-								<thead>
-									<tr>
-										<th></th>
-										<th class="font-weight-light">casos confirmados</th>
-										<th class="font-mini font-weight-light">último dia</th>
-										<th class="font-mini font-weight-light">última semana</th>
-										<th class="font-weight-light">mortes</th>
-										<th class="font-weight-light orange">% de mortalidade</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-								</tbody>
-							</table>
-						</div>
-					</div>
-					<div class="row mt-4">
-						<div class="col-md-6">
-							<table id="tblCasesPer100k">
-								<thead>
-									<tr>
-										<th></th>
-										<th class="font-weight-light blue">casos por 100mil habitantes</th>
-									</tr>
-								</thead>
-								<tbody>
-								</tbody>
-							</table>
-						</div>
-						<div class="col-md-6">
-							<table id="tblDeathsPer100k">
-								<thead>
-									<tr>
-										<th></th>
-										<th class="font-weight-light orange">mortes por 100mil habitantes</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</section>
-
-				<section id="sec-3" class="mt-5">
-					<h2 class="font-weight-light">Trajetória de infecção e mortalidade por município</h2>
-					<div class="row mt-3">
-						<div class="col-md-3">
-							<select id="slcCities" class="form-control" onchange="createInfectionTrajectoryChart()">
-							</select>
-						</div>
-					</div>
-					<canvas id="infectionTrajectoryChart" class="mt-3"></canvas>
-				</section>
-
-				<section id="sec-3" class="mt-5">
-					<h2 class="font-weight-light">Período entre sintomas e óbito</h2>
-					<div class="row mt-12" style="height: 100px;">
-						<canvas id="symptomsToDeathPeriodChart" class="mt-3"></canvas>
-					</div>
-				</section>
-
-				<section id="sec-3" class="mt-5">
-					<h2 class="font-weight-light">Comorbidades mais comuns dentre os óbitos</h2>
-					<canvas id="mostCommonComorbitiesChart" class="mt-3"></canvas>
-				</section>
-
-				<section id="sec-3" class="mt-5">
-					<h2 class="font-weight-light">Mortalidade por gênero e faixa etária</h2>
-					<div id="deathsByAgeAndGenderChart" class="wrapper row mt-3">
-				</section>
-			</div>
+	<div class="preloader">
+		<div class="preloader__container">
+			<img src="assets/img/icon/big__virous.png" alt="">
 		</div>
 	</div>
+
+	<section class="welcome welcome1" id="home">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-7 col-lg-6">
+					<div class="title wow fadeInLeft" data-wow-delay=".4s">
+						<h1>covidPB</h1>
+						<h4>O novo coronavirus (COVID-19) é uma doença infecciosa causada por um novo vírus.</h4>
+						<div class="space-30"></div>
+						<a href="#about" class="cbtn btn1">Entender melhor</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white1.png" alt="" class="shape shape1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="shape shape2">
+		<div class="welcome_shapes wow fadeInRight">
+			<div class="welcome_shapes__wrap">
+				<img class="welcome__shape__bg " src="assets/img/shape/hero__bg.png" alt="">
+				<img class="welcome_shape welcome_shapes1" src="assets/img/shape/hero1__people.png" alt="">
+				<img class="welcome_shape welcome_shapes2" src="assets/img/icon/big__virous.png" alt="">
+				<img class="welcome_shape welcome_shapes3" src="assets/img/icon/big__virous.png" alt="">
+				<img class="welcome_shape welcome_shapes4" src="assets/img/icon/big__virous.png" alt="">
+			</div>
+		</div>
+	</section>
+
+	<section class="counter__area">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="counters">
+						<div class="counters__wrap">
+							<div class="row">
+								<div class="col-md-12 col-lg-4 text-center">
+									<div class="single__counter wow fadeInUp" data-wow-delay=".3s">
+										<h2 class="counter" id="totalConfirmedCases"></h2>
+										<p>Casos confirmados</p>
+									</div>
+								</div>
+								<div class="col-md-12 col-lg-4 text-center">
+									<div class="single__counter ctype2 wow fadeInUp" data-wow-delay=".2s">
+										<h2 class="counter" id="totalRecoveredCases"></h2>
+										<p>Casos recuperados</p>
+									</div>
+								</div>
+								<div class="col-md-12 col-lg-4 text-center">
+									<div class="single__counter no__border wow fadeInUp" data-wow-delay=".4s">
+										<h2 class="counter" id="totalDeaths"></h2>
+										<p>Mortes</p>
+									</div>
+								</div>
+								<div class="col-12 text-center wow fadeInUp">
+									<div class="space-30"></div>
+									<h6 class="source">Atualizado em <span class="lastUpdateGov"></span>, Fonte: <a href="https://paraiba.pb.gov.br/diretas/saude/coronavirus">Governo da Paraíba</a></h6>
+								</div>
+							</div>
+							<img src="assets/img/shape/shape__white2.png" alt="" class="counter__bg counter__bg1">
+							<img src="assets/img/shape/shape__white2.png" alt="" class="counter__bg counter__bg2">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="about__area" id="about">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-6 align-self-center">
+					<div class="about__img wow fadeInLeft">
+						<img src="assets/img/about/about__left.png" alt="image">
+					</div>
+				</div>
+				<div class="col-lg-6 align-self-center">
+					<div class="about__text wow fadeInRight">
+						<div class="title">
+							<h2>O que é o novo coronavirus?</h2>
+							<h4>Segundo o Ministério da Saúde Brasileiro, o vírus da pandemia em questão faz parte de uma grande família de vírus chamada coronavírus, comuns em muitas espécies diferentes de animais.<br/><br/>Raramente, os coronavírus que infectam animais podem infectar pessoas, porém, recentemente, em dezembro de 2019, houve a transmissão de um novo coronavírus (SARS-CoV-2), o qual foi identificado em Wuhan na China e causou a COVID-19, sendo em seguida disseminada e transmitida pessoa a pessoa.</h4>
+							<div class="space-30"></div>
+							<a href="#symptoms" class="cbtn btn1">Checar sintomas</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white2.png" alt="" class="about__shape about__shape1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="about__shape about__shape2">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="about__shape about__shape3">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="about__shape about__shape4">
+	</section>
+
+
+	<section class="symptoms__area theme__bg1" id="symptoms">
+		<div class="container">
+			<div class="row wow fadeInLeft">
+				<div class="col-lg-12">
+					<h2>Quais são os sintomas?</h2>
+					<div class="space-30"></div>
+					<div class="title">
+						<h4>A COVID-19 apresenta quadros que variam de assintomáticos a graves.<br/><br/>De acordo com a Organização Mundial de Saúde, a maioria dos pacientes (cerca de 80%) podem ser assintomáticos ou apresentar poucos sintomas, e aproximadamente 20% dos casos requerem algum tipo de atendimento hospitalar por apresentarem dificuldade respiratória, onde aproximadamente 5% podem necessitar de suporte ventilatório.<br/><br/>Alguns dos sintomas são:</h4>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="points">
+									<ul>
+										<li><i class="fas fa-check"></i> Tosse seca</li>
+										<li><i class="fas fa-check"></i> Febre</li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="points">
+									<ul>
+										<li><i class="fas fa-check"></i> Dor de cabeça</li>
+										<li><i class="fas fa-check"></i> Dificuldades respiratórias</li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="points">
+									<ul>
+										<li><i class="fas fa-check"></i> Falência renal</li>
+										<li><i class="fas fa-check"></i> Dificuldades respiratórias</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="space-50"></div>
+						<a href="#heatmapSection" class="cbtn btn1">Estatísticas</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+
+	<section class="map__area" id="heatmapSection">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 text-center m-auto">
+					<div class="title wow fadeInDown">
+						<h2>Mais de <span id="totalDeathsHeatmap"></span> pessoas morreram devido ao coronavírus na Paraíba</h2>
+						<h4>Acompanhe abaixo a linha do tempo com a disseminação do vírus pelos municípios do estado</h4>
+						<p class="title__top" id="currentDate"></p>
+						<ul class="inline media-controls space-10">
+							<li onclick="rewindHeatmap();"><i class="fas fa-backward"></i></li>
+							<li onclick="playPauseHeatmap($(this));"><i class="fas fa-play"></i></li>
+							<li onclick="forwardHeatmap();"><i class="fas fa-forward"></i></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="space-50"></div>
+			<div class="row">
+				<div class="col-12 text-center">
+					<div class="wow zoomIn">
+						<div id="heatmap" class="wrapper row mt-3">
+						</div>
+					</div>
+					<div class="space-50"></div>
+					<h6 class="source wow fadeInUp">Atualizado em <span class="lastUpdate"></span>, Fonte: <a href="https://brasil.io/dataset/covid19/caso_full/">Brasil.io</a></h6>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img2">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img3">
+	</section>
+
+
+	<section class="contagion theme__bg2" id="contagion">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 align-self-center">
+					<div class="title white__title ml-lg-5 wow fadeInDown text-center">
+						<h2>Quais as cidades mais afetadas pelo coronavírus?</h2>
+						<h4>As 10 cidades com o maior número de casos e mortes</h4>
+					</div>
+					<div class="title white__title ml-lg-5 wow fadeInUp">
+						<div class="space-30"></div>
+						<div class="row mt-3">
+							<div class="col-md-12">
+								<table id="tblInfectionFatalityRates">
+									<thead>
+										<tr>
+											<th></th>
+											<th class="font-weight-light">casos confirmados</th>
+											<th class="font-mini font-weight-light">último dia</th>
+											<th class="font-mini font-weight-light">últimas 2 semanas</th>
+											<th class="font-weight-light">mortes</th>
+											<th class="font-weight-light red">% de mortalidade</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="title white__title ml-lg-5 wow fadeInUp text-center">
+						<div class="row mt-4">
+							<div class="col-md-6 text-left">
+								<table id="tblCasesPer100k">
+									<thead>
+										<tr>
+											<th></th>
+											<th class="font-weight-light blue">casos por 100mil habitantes</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+							<div class="col-md-6 text-left">
+								<table id="tblDeathsPer100k">
+									<thead>
+										<tr>
+											<th></th>
+											<th class="font-weight-light red">mortes por 100mil habitantes</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="space-50"></div>
+						<h6 class="source wow fadeInUp">Atualizado em <span class="lastUpdate"></span>, Fonte: <a href="https://brasil.io/dataset/covid19/caso_full/">Brasil.io</a></h6>
+					</div>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white2.png" alt="" class="contagion__img contagion__img1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="contagion__img contagion__img2">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="contagion__img contagion__img3">
+	</section>
+
+
+	<section class="preventions__area padding-top" id="prevention">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 text-center m-auto">
+					<div class="title wow fadeInDown">
+						<h2>Como está a curva de infecção na sua cidade?</h2>
+						<h4>Média móvel de infecção dos últimos 14 dias e mortalidade diária por município</h4>
+					</div>
+				</div>
+			</div>
+			<div class="space-50"></div>
+			<div class="row">
+				<div class="col-lg-12 wow fadeInUp text-center">
+					<div class="col-md-3">
+						<select id="slcCities" class="form-control" onchange="createInfectionTrajectoryChart()">
+						</select>
+					</div>
+					<canvas id="infectionTrajectoryChart" class="mt-3"></canvas>
+					<div class="space-50"></div>
+					<h6 class="source wow fadeInUp">Atualizado em <span class="lastUpdate"></span>, Fonte: <a href="https://brasil.io/dataset/covid19/caso_full/">Brasil.io</a></h6>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img2">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img3">
+	</section>
+
+	<section class="symptoms__area theme__bg1" id="symptoms">
+		<div class="container">
+			<div class="title row wow fadeInDown">
+				<div class="col-lg-12 text-center">
+					<h2>Quanto tempo leva dos primeiros sintomas ao óbito?</h2>
+				</div>
+			</div>
+			<div class="space-50"></div>
+			<div class="row">
+				<div class="col-lg-12 wow fadeInUp text-center">
+					<div style="height: 100px;">
+						<canvas id="symptomsToDeathPeriodChart" class="mt-3"></canvas>
+					</div>
+					<div class="space-50"></div>
+					<h6 class="source">Atualizado em <span class="lastUpdateGov"></span>, Fonte: <a href="https://paraiba.pb.gov.br/diretas/saude/coronavirus">Governo da Paraíba</a></h6>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="preventions__area padding-top" id="prevention">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12 text-center m-auto">
+					<div class="title wow fadeInDown">
+						<h2>Quais as comorbidades mais comuns dentre os óbitos?</h2>
+					</div>
+				</div>
+			</div>
+			<div class="space-50"></div>
+			<div class="row">
+				<div class="col-lg-12 wow fadeInUp text-center">
+					<canvas id="mostCommonComorbitiesChart" class="mt-3"></canvas>
+					<div class="space-50"></div>
+					<h6 class="source">Atualizado em <span class="lastUpdateGov"></span>, Fonte: <a href="https://paraiba.pb.gov.br/diretas/saude/coronavirus">Governo da Paraíba</a></h6>
+				</div>
+			</div>
+		</div>
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img1">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img2">
+		<img src="assets/img/shape/shape__white2.png" alt="" class="prevention__img prevention__img3">
+	</section>
+
+	<section class="symptoms__area theme__bg1" id="symptoms">
+		<div class="container">
+			<div class="title row wow fadeInDown">
+				<div class="col-lg-12 text-center">
+					<h2>Quais as faixas etárias e gêneros mais afetados?</h2>
+					<p class="title__top" id="currentDatePyramid"></p>
+					<ul class="inline media-controls space-10">
+						<li onclick="rewindPyramid();"><i class="fas fa-backward"></i></li>
+						<li onclick="playPausePyramid($(this));"><i class="fas fa-play"></i></li>
+						<li onclick="forwardPyramid();"><i class="fas fa-forward"></i></li>
+					</ul>
+				</div>
+			</div>
+			<div class="space-50"></div>
+			<div class="row">
+				<div class="col-lg-12 wow fadeInUp text-center">
+					<div id="deathsByAgeAndGenderChart"></div>
+					<div class="space-50"></div>
+					<h6 class="source">Atualizado em <span class="lastUpdateGov"></span>, Fonte: <a href="https://paraiba.pb.gov.br/diretas/saude/coronavirus">Governo da Paraíba</a></h6>
+				</div>
+			</div>
+		</div>
+	</section>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/classie/1.0.1/classie.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.4/umd/popper.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
@@ -155,6 +371,7 @@
 	<script src="paraiba_topo.json"></script>
 	<script src="pb_casos_full.json"></script>
 	<script src="detailed_deaths_data.json"></script>
+	<script src="detailed_cases_data.json"></script>
 	<script src="script.js"></script>
 </body>
 </html>

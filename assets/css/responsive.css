@@ -1,0 +1,263 @@
+
+/*
+Theme Name: demo 
+Theme url:
+Author:
+Author url:
+Version:1.0.0
+Tag:
+Description:
+
+================+/+/+/+/+/+/+/+/+/=================
+                    heigh
+================+/+/+/+/+/+/+/+/+/=================
+*/
+@media only screen and (min-width: 1401px) {
+    .welcome_shapes {
+        right: 12%;
+    }
+    .welcome.welcome2{
+        height: 950px;
+    }
+
+    img.symptom__bg {
+
+        right: 14%;
+    }
+    
+}
+
+
+@media only screen and (max-width: 1400px) {
+    .welcome {
+        display: flex;
+        height: 750px;    
+    }
+
+    .welcome.welcome2{
+        height: 850px;
+    }
+    
+}
+
+
+/*
+================+/+/+/+/+/+/+/+/+/=================
+                    medium
+================+/+/+/+/+/+/+/+/+/=================
+*/
+
+
+@media only screen and (min-width: 992px) and (max-width: 1300px) {
+    
+    .welcome {
+        display: block;
+        height: auto;
+        position: relative;
+        z-index: 2;
+        align-items: center;
+        padding: 150px 0 100px;
+        overflow: hidden;
+    }
+    .welcome_shapes {
+        position: absolute;
+        right: -2%;
+        height: 500px;
+        width: 500px;
+        bottom: 10%;
+    }
+    a.cbtn.emergency_btn {
+        padding: 16px 15px;
+    }
+
+}
+
+/*
+================+/+/+/+/+/+/+/+/+/=================
+                     tab
+================+/+/+/+/+/+/+/+/+/=================
+*/
+
+@media only screen and (max-width: 991px){
+    .main__menu ul.navclass {
+        z-index: 99;
+    }
+}
+
+
+/*tablet layout:768px*/
+@media only screen and (min-width:768px) and (max-width:991px){
+	
+    .welcome_shapes {
+        position: absolute;
+        right: -7%;
+        height: 400px;
+        width: 400px;
+        bottom: 18%;
+    }
+
+    .welcome {
+        display: block;
+        padding-top: 84px;
+        height: auto;
+        overflow: hidden;
+        position: relative;
+        z-index: 2;
+        align-items: center;
+        padding: 100px 0;
+    }
+    
+    img.symptom__bg{
+        display: none
+    }
+	
+} 
+
+/*
+================+/+/+/+/+/+/+/+/+/=================
+                    Mobile
+================+/+/+/+/+/+/+/+/+/=================
+*/
+@media only screen and (max-width: 767px) {
+   .welcome {
+        display: block;
+        padding: 150px 0 100px;
+        height: auto;
+        position: relative;
+        overflow: hidden;
+        z-index: 2;
+        align-items: center;
+    }
+
+    .welcome.welcome2 {
+        height: auto;
+    }
+
+    .single__footer h3{
+        margin-top: 30px;
+    }
+    .cta_wrap{
+        padding:40px 20px;
+    }
+    .btn__group a:last-child {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+
+
+    .single__list {
+        padding: 30px;
+    }
+    .single__list__icon {
+        position: relative;
+        left: auto;
+        text-align: center;
+        top: auto;
+        margin-bottom: 30px;
+    }
+    .blog__lists {
+        margin-top: 80px;
+    }
+
+    .single__blog__img {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .single__blog {
+        position: relative;
+        z-index: 2;
+        padding-left: 30px;
+        margin-bottom: 30px;
+    }
+
+    .title h2 {
+        font-size: 32px;
+        line-height: 36px;
+    }
+    h2.should__dont {
+        margin-top: 30px;
+    }
+
+    img.welcome_shape.welcome_shapes22 {
+        height: 200px;
+        left: 16%;
+        top: 14%;
+    }
+}
+
+
+
+
+@media only screen and (min-width: 426px) (max-width: 767px) {
+   
+
+}
+
+
+
+@media only screen and (max-width: 425px) {
+    .welcome_shapes {
+        position: relative;
+        right: 0;
+        height: auto;
+        width: auto;
+        margin-top: 80px;
+    }
+
+    .title h1 {
+        font-size: 36px;
+        line-height: 40px;
+    }
+    .title {
+        text-align: center;
+    }
+
+    .title h4 {
+        font-size: 18px;
+        line-height: 30px;
+    }
+
+    .copyright .row > div {
+        text-align: left !important;
+    }
+    .footer__area {
+        text-align: left;
+    }
+
+    .single__counter {
+        margin-bottom: 30px;
+    }
+
+    img.symptom__bg {
+        position: relative;
+        top: 0;
+        right: auto;
+        margin-top: 50px;
+    }
+
+    .points ul li {
+        position: relative;
+        z-index: 2;
+        font-size: 18px;
+        line-height: 26px;
+        color: #6C7083;
+        margin-bottom: 20px;
+        padding-left: 30px;
+        display: inline-block;
+        width: 100%;
+        text-align: left;
+        margin-left: 30px;
+    }
+    .points ul li:last-child{
+        margin-bottom: 20px;
+    }
+    
+}
+
+
+
+
+/*=========================================================================
+                                The end
+==========================================================================*/

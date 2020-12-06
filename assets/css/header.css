@@ -1,0 +1,53 @@
+.header__area {
+    padding: 15px 0;
+}
+
+.header__area.header__absolute {
+    position: absolute;
+    width: 100%;
+    background: #fff;
+    z-index: 99;
+}
+
+
+
+.header2 {
+    background: transparent !important;
+}
+
+
+.header2 .stellarnav.light li a{
+	color: #fff;
+}
+
+.header2 .stellarnav.light li a:hover{
+	color: #3A3ACC;
+}
+
+
+.header__area.sticky {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.header__area.header2.sticky {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: #0B043B !important;
+    left: 0;
+}
+.stellarnav li.has-sub > a:after {
+    display: inline-block;
+    content: "+";
+    width: 0;
+    height: 100%;
+    position: relative;
+    letter-spacing: 0;
+    margin: 0;
+    line-height: 0;
+}
